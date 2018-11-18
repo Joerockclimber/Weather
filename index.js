@@ -27,12 +27,6 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-if(process.env.NODE_ENV === 'production'){
-    //set static folder
-    app.use(express.static('client/build'));
-}
-
-
 /*******************************************************
 * GET CURRENT WEATHER FORM
 *******************************************************/
