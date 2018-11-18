@@ -3,7 +3,7 @@ var app = express();
 var url = require('url');
 var bodyParser = require('body-parser');
 var apiKey = '5471ad3689f4376e5e13457053a9a305';
-const request = require('request');
+var request = require('request');
 
 /*how to parse post without framework
 if (req.method === 'POST') {
