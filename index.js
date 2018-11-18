@@ -71,10 +71,6 @@ app.post('/weather', function (req, res) {
     });
 })
 
-app.listen(app.get('port'), function() {
-    console.log('Node app is running on port', app.get('port'));
-});
-
 /*******************************************************
 * FIVE DAY WEATHER FORCAST 
 * Respond to weather request
