@@ -4,6 +4,7 @@ var url = require('url');
 var bodyParser = require('body-parser');
 var apiKey = '5471ad3689f4376e5e13457053a9a305';
 const request = require('request');
+var cookie = require('cookie');
 
 /*how to parse post without framework
 if (req.method === 'POST') {
@@ -27,47 +28,40 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-if(process.env.NODE_ENV === 'production'){
-    //set static folder
-    app.use(express.static('client/build'));
-}
-
-
-/*******************************************************
-* GET CURRENT WEATHER FORM
-*******************************************************/
 app.get('/weather', function (req, res) {
-    res.render('pages/weather2', {weather: null, error: null});
+    res.render('pages/weather', {cookie: req.cookies, error: null});
     //console.log(req.query.city); how it works with get
     //public is used so nethier get or post have effects on page?? 
     //Sessions?
 });
 
-/*******************************************************
-* GET FIVE WEATHER DAY WEATHER FORCAST FORM
-*******************************************************/
-app.get('/5weather', function (req, res) {
-    res.render('pages/weather3', {weather: null, city: null, error: null});
-});
-
-
-/*******************************************************
-* CURRENT WEATHER
-* Respond to weather request
-*******************************************************/
 app.post('/weather', function (req, res) {
     let city = req.body.city;
     let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`
     request(url, function (err, response, body) {
         if(err){
-            res.render('pages/weather2', {weather: null, error: 'Error, please try again'});
+            res.render('pages/weather', {cookie: req.cookies, error: 'Error, please try again'});
         } else {
             let weather = JSON.parse(body)
             if(weather.main == undefined){
-                res.render('pages/weather2', {weather: null, error: 'Error, please try again'});
+                res.render('pages/weather', {cookie: req.cookies, error: 'Error, please try again'});
             } else {
                 let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
-                res.render('pages/weather2', {weather: weatherText, error: null});
+                //Make the cookie
+                if (cookie === undefined){ //if a cookie does not exsite make one
+                    res.setHeader('Set-Cookie', cookie.serialize(city, {weather: weatherText}, {
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 24 * 7 // 1 week
+                    }));
+                }
+                else{ //If a cookie does exsit add to it 
+                    res.append('Set-Cookie',cookie.serialize(city, {weather: weatherText}, {
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 24 * 7 // 1 week
+                    }));
+                }
+                res.render('pages/weather', {cookie: cookie, error: null}); //weather: weatherText, error: null
+                console.log({cookie: cookie, error: null});
             }
         }
     });
@@ -76,46 +70,6 @@ app.post('/weather', function (req, res) {
 app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
-
-/*******************************************************
-* FIVE DAY WEATHER FORCAST 
-* Respond to weather request
-*******************************************************/
-app.post('/5weather', function (req, res) {
-    let city = req.body.city;
-    let url = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${apiKey}` 
-    //`api.openweathermap.org/data/2.5/forecast?q=${city},us&units=imperial&appid=${apiKey}`
-    request(url, function (err, response, body) {
-        if(err){
-            res.render('pages/weather3', {weather: null, city: null, error: 'Error1, please try again'});
-        } else {
-            let weather = JSON.parse(body)
-            if(weather.list == undefined){
-                res.render('pages/weather3', {weather: null, city: null, error: 'Error2, please try again'});
-            } else {
-                console.log(JSON.stringify(weather.list));
-                res.render('pages/weather3', {weather: weather.list, city: weather.city.name, error: null});
-                //weather.list.dt_txt // weather.list.main.temp //dt_txt //temp // city //JSON.stringify()
-            }
-        }
-    });
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -149,6 +103,3 @@ res.append('Set-Cookie', weather2);*/
 
 ///addcity
 ///delete city
-
-
-
