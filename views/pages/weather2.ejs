@@ -19,15 +19,15 @@
             </div>
         </div>
         <div class = "wrapper">
+            <% if(weather !== null){ %>
             <div>
-                <% if(weather !== null){ %>
                 <p><%= weather %></p>
                 <% } %>
 
                 <% if(error !== null){ %>
                 <p><%= error %></p>
-                <% } %>
             </div>
+            <% } %>
         </div>
     </body>
 </html>
