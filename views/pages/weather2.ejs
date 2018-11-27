@@ -14,15 +14,19 @@
                             <input name="city" type="text" placeholder="Enter a City" required>
                             <input type="submit" value="Get Weather">
                         </form>
-                        <% if(weather !== null){ %>
-                        <p><%= weather %></p>
-                        <% } %>
-
-                        <% if(error !== null){ %>
-                        <p><%= error %></p>
-                        <% } %>
                     </fieldset>
                 </center>
+            </div>
+        </div>
+        <div class = "wrapper">
+            <div>
+                <% if(weather !== null){ %>
+                <p><%= weather %></p>
+                <% } %>
+
+                <% if(error !== null){ %>
+                <p><%= error %></p>
+                <% } %>
             </div>
         </div>
     </body>
