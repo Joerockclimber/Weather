@@ -4,6 +4,8 @@ var url = require('url');
 var bodyParser = require('body-parser');
 var apiKey = '5471ad3689f4376e5e13457053a9a305';
 var request = require('request');
+var Cookies = require('cookies');
+var fetch = require('node-fetch');
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -41,21 +43,8 @@ app.get('/5weather', function (req, res) {
 * Respond to weather request
 *******************************************************/
 app.post('/weather', function (req, res) {
-    let city = req.body.city;
-    let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`
-    request(url, function (err, response, body) {
-        if(err){
-            res.send('Error, please try again');
-        } else {
-            let weather = JSON.parse(body)
-            if(weather.main == undefined){
-                res.send('Error, please try again');
-            } else {
-                let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
-                res.send( weatherText);
-            }
-        }
-    });
+    setCookie(req,res);
+    renderweather(req,res,req.body.city);
 })
 
 /*******************************************************
@@ -81,9 +70,89 @@ app.post('/5weather', function (req, res) {
     });
 })
 
+/*******************************************************
+* Load Cookies 
+* input: request, responce, city string 
+*******************************************************/
+app.post('/loadCookies', function (req, res) {
+    //set keys so users can't mess with app
+    var keys = ['keyboard cat'];
 
+    //cookie object
+    var cookies = new Cookies(req, res, { keys: keys })
 
+    // Get a cookie
+    var citiesComma = cookies.get('city', { signed: true })
 
+    console.log("parse cookies");
+    var cities = String(citiesComma).split(',');
+    var fetches = [];
+    for(var i = 1; i < cities.length; i++){
+        console.log(cities[i]);
+        renderCookies(req,res,cities[i], fetches);
+    }
+    Promise.all(fetches).then(function() {
+        res.end();
+    });
+
+})
+
+/******************************************************
+* SET COOKIE
+*******************************************************/
+function setCookie(req, res){    
+    var keys = ['keyboard cat'];
+    var cookies = new Cookies(req, res, { keys: keys })
+
+    // Get a cookie
+    var cities = cookies.get('city', { signed: true })
+
+    // Set the cookie to a value
+    cities += "," + req.body.city;
+    cookies.set('city', cities , {signed: true, overwrite: true})
+}
+
+/*******************************************************
+* Renders Weather 
+* input: request, responce, city string 
+*******************************************************/
+function renderweather(req,res,city)
+{ 
+    let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`
+    request(url, function (err, response, body) {
+        if(err){
+            res.send('Error, please try again');
+        } else {
+            let weather = JSON.parse(body)
+            if(weather.main == undefined){
+                res.send('Error, please try again');
+            } else {
+                let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
+                res.send( weatherText);
+            }
+        }
+    });
+}
+
+/**************************************************
+*RENDER COOKIES
+***************************************************/
+function renderCookies(req,res,city, fetches){
+    console.log(`Rendering ${city}`);
+    let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`
+    let array = new Array;
+    fetches.push(
+        fetch(url).then(res => res.json()).then(function(weather){
+            //let weather; //= JSON.parse(body);
+            if(weather.main == undefined){
+                res.write('Error, please try again^');
+            } else {
+                let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!^`;
+                res.write( weatherText);
+            }
+        }).catch( err => {return console.log(err);})
+    );
+}
 
 
 

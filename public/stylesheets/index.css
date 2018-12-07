@@ -4,10 +4,17 @@
     grid-gap: 1em;
     justify-items: stretch;
     align-items: stretch;
-    grid-template-rows: repeat(3, 30vw); 
+    /*grid-template-rows: repeat(3, 10vw);*/
+    grid-auto-rows: 10vw;
     margin-top: 100px;
 }
 .wrapper > div{
+    font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: bold;
+    font-size: 1.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
     background: #eee;
     padding: 1em;
     grid-column: 7/12

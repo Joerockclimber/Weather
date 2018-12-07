@@ -1,38 +1,59 @@
 
 // Constants used during the AJAX request.
 //var ERROR = {
-  //"message": "The request failed!"
+//"message": "The request failed!"
 //};
 
 // Wait for the document to load before binding event handlers further.
 $(function() {
 
-  // Obtain programmatic reference to the important elements of the page.
-  var cityForm = $('#cityForm'),
-      city = $('#city'),
-      output = $('#wrapper');
+    // Obtain programmatic reference to the important elements of the page.
+    var cityForm = $('#cityForm'),
+        city = $('#city'),
+        output = $('#wrapper');
 
-  // Listen for submission events on the example form.
-  cityForm.on('submit', function(e) {
+    // Listen for submission events on the example form.
+    cityForm.on('submit', function(e) {
 
-    // Programmatically prevent the form from submitting.
-    e.preventDefault();
+        // Programmatically prevent the form from submitting.
+        e.preventDefault();
 
-    // Resolve the target URI.
-    var target = '/weather';
-    var param = {city : city.val()}
+        // Resolve the target URI.
+        var target = '/weather';
+        var param = {city : city.val()}
 
-    // Perform an AJAX request using the get() method.
-    // If the request was successful, append the response.
-    // If not, append a JSON error object.
-    $.post(target, param, function(response) {
+        // Perform an AJAX request using the get() method.
+        // If the request was successful, append the response.
+        // If not, append a JSON error object.
+        $.post(target, param, function(response) {
 
-      // The most notable difference here is that jQuery attempts to parse JSON
-      // responses into a JSON object, whereas vanilla JavaScript returns the
-      // result of an AJAX request as a string.
-      output.append('<div>' + /*JSON.stringify(response)*/response + '</div>');
-    }).fail(function() {
-      output.append('<div> The request failed! </div>');
+            // The most notable difference here is that jQuery attempts to parse JSON
+            // responses into a JSON object, whereas vanilla JavaScript returns the
+            // result of an AJAX request as a string.
+            output.append('<div>' + /*JSON.stringify(response)*/response + '</div>');
+        }).fail(function() {
+            output.append('<div> The request failed! </div>');
+        });
     });
-  });
+
+    loadCookies();
 });
+
+/************************************
+*LOAD COOKIES
+*************************************/
+function loadCookies(){
+    output = $('#wrapper');
+    var target = '/loadCookies';
+    $.post(target, function(response) {
+        //cities are parsed responses
+        var cities = response.split("^");
+        //loop through the responces and post them
+        for(var i = 0; i < cities.length - 1; i++){
+            output.append('<div>' + cities[i] + '</div>');
+        }
+    }).fail(function() {
+        output.append('<div> The request failed! </div>');
+    });
+
+}
