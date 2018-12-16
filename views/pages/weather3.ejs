@@ -1,3 +1,13 @@
+<%
+var weekday = new Array(7);
+weekday[0] =  "Sunday";
+weekday[1] = "Monday";
+weekday[2] = "Tuesday";
+weekday[3] = "Wednesday";
+weekday[4] = "Thursday";
+weekday[5] = "Friday";
+weekday[6] = "Saturday"; 
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -10,25 +20,46 @@
             <div>
                 <center> 
                     <% if(weather == null && city == null){ %>
-                    <p>5 day forcast each 6 hours</p>
+                    <p>5 day forcast</p>
                     <% } %>
                     <fieldset>
                         <form action="/5weather" method="post">
                             <input name="city" type="text" placeholder="Enter a City" required>
                             <input type="submit" value="Get Weather">
                         </form>
-                        <% if(weather != null && city != null){ %>
-                        <p>5 day forcast each 6 hours for <%= city %></p>
-                        <%for (i = 1; i < weather.length; i += 2) { %>
-                        <p>time: <%= weather[i].dt_txt; %> Temp: <%= weather[i].main.temp %></p>
-                        <% }} %>
-
-                        <% if(error !== null){ %>
-                        <p><%= error %></p>
-                        <% } %>
                     </fieldset>
                 </center>
             </div>
         </div>
+        <% if(weather != null && city != null){ %>
+        <center><p>5 day forcast for <%= city %></p></center>
+        <div class="wrapper2">
+            <%var tempDay;%>
+
+            <%for (i = 1; i < weather.length; i++) { %>
+            <%
+            var date = new Date(weather[i].dt_txt); //set weather
+            var day = weekday[date.getDay()]; //set day
+            if(tempDay != day){%>
+            <div>
+                <center><%=day + " " + weather[i].dt_txt.substring(0, 11);%></center>
+                <%}%>
+                <p>
+                    Time: <%= weather[i].dt_txt.substring(11);%> <br/>
+                    Temp: <%= weather[i].main.temp %>
+                </p>
+                <%tempDay = day; //set tempDay%>
+                <%if(weather[i + 1] == undefined){%>
+            </div>
+            <%}else if(weather[i].dt_txt.substring(0, 11) != weather[i + 1].dt_txt.substring(0, 11)){%>
+        </div>
+        <% }} %>       
+        </div>
+    <%} %>                
+    <% if(error !== null){ %>
+    <div>
+        <p><%= error %></p>
+    </div>
+    <% } %>
     </body>
 </html>
